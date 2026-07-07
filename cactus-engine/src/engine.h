@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <random>
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -522,6 +523,7 @@ public:
               Tokenizer* tokenizer);
 
     const std::unordered_map<uint32_t, float>& get_bias() const { return current_bias_; }
+    const std::vector<float>* get_dense_bias() const { return dense_ready_ ? &dense_bias_ : nullptr; }
 
     void update(uint32_t token_id, const std::string& decoded_text);
 
@@ -561,6 +563,8 @@ private:
     std::unordered_set<uint32_t> close_brace_tokens_;
 
     std::unordered_map<uint32_t, float> current_bias_;
+    std::vector<float> dense_bias_;
+    bool dense_ready_ = false;
 
     void compute_bias();
     void tokenize_grammar_elements();
@@ -634,6 +638,7 @@ public:
     uint32_t decode(const std::vector<uint32_t>& tokens, float temperature = -1.0f, float top_p = -1.0f,
                     size_t top_k = 0, const std::string& profile_file = "", float* out_entropy = nullptr,
                     float min_p = 0.15f, float repetition_penalty = 1.1f);
+    void set_sample_seed(uint64_t seed) { sample_rng_.seed(static_cast<std::mt19937::result_type>(seed)); }
     bool prefill_and_sample_first_token(const std::vector<uint32_t>& tokens, uint32_t& out_token,
                                         float* out_uncertainty = nullptr);
 
@@ -807,7 +812,7 @@ private:
     bool load_component_graph(Component& comp);
     void unload_component_graph(Component& comp);
     bool bind_runtime_buffers(Component& comp);
-    void run_step(uint32_t token_id, size_t position, bool read_logits);
+    void run_step(uint32_t token_id, size_t position, bool read_logits, bool use_fused = true);
     void run_step_batch(const std::vector<uint32_t>& token_ids, const std::vector<size_t>& positions);
     void set_component_batch(Component& comp, size_t batch);
     size_t decoder_cache_num_slots();
@@ -845,6 +850,9 @@ private:
                                size_t chunk_tokens, const std::vector<uint32_t>& tokens,
                                size_t processed, size_t start_position);
     void run_full_context_text();
+    void prepare_sampling_context(float repetition_penalty);
+    uint32_t sample_component_logits(Component& comp, float temperature, float top_p, size_t top_k,
+                                     float min_p, bool greedy, float* out_uncertainty);
     uint32_t argmax_component_logits(Component& comp, size_t logit_row = std::numeric_limits<size_t>::max(),
                                      float* out_uncertainty = nullptr);
     uint32_t argmax_logits_at(const BufferDesc& desc, void* ptr, size_t row_off, float* out_uncertainty);
@@ -942,6 +950,14 @@ private:
 
     static constexpr size_t MAX_TOKEN_HISTORY = 128;
     std::vector<uint32_t> token_history_;
+    std::vector<uint32_t> samp_recent_;
+    std::vector<float> samp_bias_dense_;
+    bool samp_has_bias_ = false;
+    float samp_penalty_ = 1.0f;
+    bool samp_ctx_active_ = false;
+    std::mt19937 sample_rng_{std::random_device{}()};
+    FusedEmbedCtx fused_embed_ctx_;
+    int ple_probe_state_ = 0;
 
     ToolCallConstrainer tool_constrainer_;
     std::unordered_map<uint32_t, float> vocab_bias_;

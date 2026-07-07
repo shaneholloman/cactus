@@ -27,6 +27,8 @@ private:
     int total_count_;
 };
 
+void apply_backend();
+
 }
 
 namespace EngineTestUtils {

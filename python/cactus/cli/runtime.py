@@ -77,6 +77,8 @@ def _link_python_runtime_library(*, static_lib, library_path):
             "-framework", "Accelerate",
             "-framework", "CoreML",
             "-framework", "Foundation",
+            "-framework", "Metal",
+            "-framework", "MetalPerformanceShaders",
             "-framework", "Security",
             "-framework", "SystemConfiguration",
             "-framework", "CFNetwork",

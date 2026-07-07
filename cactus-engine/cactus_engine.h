@@ -34,6 +34,8 @@ CACTUS_FFI_EXPORT void cactus_destroy(cactus_model_t model);
 CACTUS_FFI_EXPORT void cactus_reset(cactus_model_t model);
 CACTUS_FFI_EXPORT void cactus_stop(cactus_model_t model);
 
+CACTUS_FFI_EXPORT int cactus_set_backend(const char* backend);
+
 CACTUS_FFI_EXPORT int cactus_complete(
     cactus_model_t model,
     const char* messages_json,

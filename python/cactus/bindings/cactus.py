@@ -67,6 +67,9 @@ _lib.cactus_set_telemetry_environment(b"python", None, None)
 _lib.cactus_init.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
 _lib.cactus_init.restype = ctypes.c_void_p
 
+_lib.cactus_set_backend.argtypes = [ctypes.c_char_p]
+_lib.cactus_set_backend.restype = ctypes.c_int
+
 # cactus graph API
 _lib.cactus_graph_create.restype = cactus_graph_t
 _lib.cactus_graph_destroy.argtypes = [cactus_graph_t]
@@ -952,6 +955,11 @@ def cactus_telemetry_shutdown():
 # ── Model lifecycle ──────────────────────────────────────────────────
 
 
+def cactus_set_backend(backend):
+    """Select the inference backend ("auto", "cpu", or "metal"). Returns 0 on success, -1 on failure."""
+    return _lib.cactus_set_backend(_enc(backend))
+
+
 def cactus_init(model_path, corpus_dir=None, cache_index=False):
     """Load a model from disk.
 
@@ -1481,6 +1489,7 @@ class Graph:
     CQ4 = 6
     CPU = 0
     NPU = 1
+    METAL = 2
     ACT_SILU = 0
     ACT_GELU = 1
     ACT_GELU_ERF = 2

@@ -4,6 +4,7 @@
 #include "chat_tools.h"
 #include "telemetry.h"
 #include "cactus_kernels.h"
+#include "metal_backend.h"
 #include "wav.h"
 #include <algorithm>
 #include <chrono>
@@ -796,6 +797,10 @@ int cactus_complete(
     const uint8_t* pcm_buffer,
     size_t pcm_buffer_size
 ) {
+    struct MetalTrimGuard {
+        ~MetalTrimGuard() { cactus_metal_trim_prefill_cache(); }
+    } metal_trim_guard;
+
     if (!model) {
         std::string error_msg = last_error_message.empty() ?
             "Model not initialized. Check model path and files." : last_error_message;
@@ -824,6 +829,9 @@ int cactus_complete(
         }
         auto* tokenizer = handle->model->get_tokenizer();
         auto prompt = prepare_prompt(handle, messages_json, options_json, tools_json, true, true, pcm_buffer, pcm_buffer_size);
+        if (prompt.options.sample_seed != 0) {
+            handle->model->set_sample_seed(prompt.options.sample_seed);
+        }
 
         CACTUS_LOG_DEBUG("complete", "Prompt tokens: " << prompt.tokens.size()
             << ", max_tokens: " << prompt.options.max_tokens);
