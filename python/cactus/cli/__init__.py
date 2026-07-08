@@ -20,7 +20,7 @@ _WEIGHTS_PIPE = "|".join(_WEIGHTS_CHOICES)
 from .compile import cmd_build
 from .serve import cmd_serve
 from .transcribe import cmd_transcribe
-from .test import cmd_test, COMPONENTS
+from .test import cmd_test, cmd_benchmark, COMPONENTS
 from .convert import cmd_convert
 from .upload import cmd_upload
 from .run import cmd_run
@@ -49,6 +49,24 @@ def _build_parent():
     p.add_argument("--token", help="HuggingFace token")
     p.add_argument("--reconvert", action="store_true",
                    help="Force local rebuild from source")
+    return p
+
+
+def _engine_test_parent():
+    """Args shared by `test` and `benchmark`."""
+    p = argparse.ArgumentParser(add_help=False)
+    p.add_argument("--backend", choices=["auto", "cpu", "metal"], default="auto",
+                   help="Inference backend, default auto (Metal on Apple Silicon GPUs)")
+    p.add_argument("--model", dest="model_id", default=None,
+                   type=_hf_id_or_path,
+                   help=f"HF model ID under test (default: {DEFAULT_TEST_MODEL_ID})")
+    p.add_argument("--transcription-model", dest="transcription_model_id", default=None,
+                   type=_hf_id_or_path,
+                   help=f"HF transcription model ID under test (default: {DEFAULT_TEST_TRANSCRIPTION_MODEL_ID})")
+    p.add_argument("--android", action="store_true", help="Run tests on Android")
+    p.add_argument("--ios", action="store_true", help="Run tests on iOS")
+    p.add_argument("--enable-telemetry", action="store_true",
+                   help="Enable cloud telemetry (disabled by default in tests)")
     return p
 
 
@@ -173,6 +191,15 @@ def create_parser():
     --ios                              run on connected iPhone
     --android                          run on connected Android
     --enable-telemetry                 send cloud telemetry (off by default)
+
+  cactus benchmark                     run the engine benchmark suite
+    --model <hf-id>                    default: {DEFAULT_TEST_MODEL_ID}
+    --transcription-model <hf-id>      default: {DEFAULT_TEST_TRANSCRIPTION_MODEL_ID}
+    --bits 1|2|3|4                     CQ quantization (default: 4)
+    --weights {_WEIGHTS_PIPE:<23}  weights bundle variant (default: general)
+    --backend auto|cpu|metal           inference backend (default: auto)
+    --ios                              run on connected iPhone
+    --android                          run on connected Android
 
   cactus clean                         delete build artifacts, weights, venv
 
@@ -339,25 +366,16 @@ def create_parser():
                              help="Arguments passed through to the coding agent (prefix with -- )")
 
     test_parser = subparsers.add_parser("test", help="Run the test suite",
-                                        parents=[_build_parent()])
+                                        parents=[_build_parent(), _engine_test_parent()])
     test_parser.add_argument("--component", choices=COMPONENTS, default="all",
                              help="Component to test (default: all)")
-    test_parser.add_argument("--backend", choices=["auto", "cpu", "metal"], default="auto",
-                             help="Inference backend, default auto (Metal on Apple Silicon GPUs)")
-    test_parser.add_argument("--model", dest="model_id", default=None,
-                             type=_hf_id_or_path,
-                             help=f"HF model ID under test (default: {DEFAULT_TEST_MODEL_ID})")
-    test_parser.add_argument("--transcription-model", dest="transcription_model_id", default=None,
-                             type=_hf_id_or_path,
-                             help=f"HF transcription model ID under test (default: {DEFAULT_TEST_TRANSCRIPTION_MODEL_ID})")
     test_parser.add_argument("--suite", default=None,
                              help="Run a single test suite by name; resolved across all components (e.g. llm → engine)")
     test_parser.add_argument("--list", action="store_true",
                              help="List available components and engine tests, then exit")
-    test_parser.add_argument("--android", action="store_true", help="Run tests on Android")
-    test_parser.add_argument("--ios", action="store_true", help="Run tests on iOS")
-    test_parser.add_argument("--enable-telemetry", action="store_true",
-                             help="Enable cloud telemetry (disabled by default in tests)")
+
+    subparsers.add_parser("benchmark", help="Run the engine benchmark suite",
+                          parents=[_build_parent(), _engine_test_parent()])
 
     auth_parser = subparsers.add_parser("auth", help="Manage cloud API key")
     auth_parser.add_argument("--clear", action="store_true",
@@ -467,6 +485,7 @@ _COMMANDS = {
     "serve":      cmd_serve,
     "transcribe": cmd_transcribe,
     "test":       cmd_test,
+    "benchmark":  cmd_benchmark,
     "list":       cmd_list,
 
     "auth":           cmd_auth,
@@ -477,7 +496,7 @@ _COMMANDS = {
 }
 
 
-_REPO_ONLY = {"build", "test", "clean"}
+_REPO_ONLY = {"build", "test", "benchmark", "clean"}
 
 
 def main():

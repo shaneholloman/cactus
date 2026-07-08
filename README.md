@@ -25,7 +25,7 @@ A hybrid edge-cloud AI engine for mobile devices & wearables.
 └─────────────────┘     
          │
 ┌─────────────────┐
-│ Cactus Quants   │ ←── Cactus Quants at 4-bit uniform matches f16.
+│ Cactus Quants   │ ←── Custom rotation-based quantization technique 
 └─────────────────┘  
          │
 ┌─────────────────┐
@@ -73,7 +73,7 @@ int result = cactus_complete(
     0                 // pcm buffer size
 );
 ```
-Example response from Gemma3-270m
+Example response from Gemma4-E2B
 ```json
 {
     "success": true,        // generation succeeded
@@ -120,20 +120,42 @@ void* output_data = graph.get_output(result);
 graph.hard_reset(); 
 ```
 
-## Benchmarks
+## Inference Speed
 
 - LLM: Gemma-4-E2B-CQ4 (1k-context prefill / decode for 100 tokens)
 - VLM: Gemma-4-E2B-CQ4 (256px image encode time / decode)
-- Transcribe: Parakeet-TDT-0.6B-CQ4 (20s audio encode time / decode)
+- Transcribe: Parakeet-TDT-0.6B-CQ4 (20s audio ens-to-end transcribe time)
 - 1k-Context RAM: peak MB during the LLM benchmark
 
-Reproduce command: `cactus test --component engine --suite benchmark`
+Command: `cactus benchmark` [optional `--ios` or `--android`]
 
-| Device | LLM | VLM | Transcribe | 1k-Context RAM |
+| Device | LLM | VLM | Transcribe | RAM |
 |--------|-----|-----|------------|---------------|
-| Mac M4 Pro | 1947tps / 97tps | 0.25s / 108tps | 0.28s / 11.1Mtps | 1225MB |
-| iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s / 10.9Mtps | 635MB |
+| Mac M5 Max | 2964tps / 154tps | 0.09s / 168tps | 0.15s | 1348MB |
+| Mac M4 Pro | 1947tps / 97tps | 0.25s / 108tps | 0.28s | 1225MB |
+| iPhone 17 Pro | 729tps / 37tps | 0.5s / 39tps | 0.51s | 644MB |
+| iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s | 635MB |
 
+## Output Quality 
+
+- Gemma-4-E2B-it accuracy across bit widths, averaged over 3 seeds. 
+- CQ3.26 and CQ2.54 are mixed-precision, CQ2/CQ3/CQ4 are uniformly quantized. 
+- Full results in [docs/cactus_quants.md](/docs/cactus_quants.md):
+
+| Task | F16 (Original) | CQ4 | CQ3.26 | CQ2.54 | CQ2 |
+|-----------|-----|-----|--------|--------|-----|
+| ARC-E | 73.80 | 73.73 | 74.20 | 68.20 | 50.80 |
+| ARC-C | 56.47 | 52.47 | 51.53 | 37.20 | 24.73 |
+| HellaSwag | 46.93 | 47.07 | 45.20 | 40.73 | 35.87 |
+| WinoGrande | 61.00 | 61.13 | 59.60 | 60.13 | 51.27 |
+| MMLU | 62.33 | 59.45 | 57.63 | 47.19 | 33.18 |
+| GPQA | 34.34 | 34.34 | 31.82 | 30.81 | 23.23 |
+| GSM8K | 73.67 | 71.20 | 66.20 | 22.00 | 0.40 |
+| HumanEval | 54.88 | 57.11 | 53.66 | 15.24 | 1.02 |
+| BFCL Simple | 92.00 | 92.42 | 91.50 | 82.25 | 18.75 |
+| BFCL Multi | 89.00 | 88.33 | 89.00 | 52.50 | 13.67 |
+| BFCL Parallel | 84.00 | 83.67 | 82.50 | 30.00 | 3.33 |
+| BFCL Parallel-Multi | 78.00 | 83.33 | 82.00 | 37.00 | 1.33 |
 
 ## Supported Models
 
@@ -275,19 +297,6 @@ Reproduce command: `cactus test --component engine --suite benchmark`
 │                                                                                │
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
-
-## Maintaining Organisations
-
-1. [Cactus Compute, Inc. (YC S25)](https://cactuscompute.com/)
-2. [UCLA's BruinAI](https://bruinai.org/)
-3. [Char (YC S25)](https://char.com/)
-4. [Yale's AI Society](https://www.yale-ai.org/team)
-5. [National University of Singapore's AI Society](https://www.nusaisociety.org/)
-6. [UC Irvine's AI@UCI](https://aiclub.ics.uci.edu/)
-7. [Imperial College's AI Society](https://www.imperialcollegeunion.org/csp/1391)
-8. [University of Pennsylvania's AI@Penn](https://ai-at-penn-main-105.vercel.app/)
-9. [University of Michigan Ann-Arbor MSAIL](https://msail.github.io/)
-10. [University of Colorado Boulder's AI Club](https://www.cuaiclub.org/)
 
 ## Citation 
 

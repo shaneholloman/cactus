@@ -3,7 +3,7 @@ import subprocess
 
 from .common import (
     BLUE, DEFAULT_TEST_MODEL_ID, DEFAULT_TEST_TRANSCRIPTION_MODEL_ID,
-    PROJECT_ROOT, RED, apply_cloud_api_key_env, print_color,
+    PROJECT_ROOT, RED, YELLOW, apply_cloud_api_key_env, print_color,
 )
 
 COMPONENTS = ("kernels", "graph", "engine", "all")
@@ -37,6 +37,13 @@ def _component_args(component, args):
         if args.ios:
             cmd.append("--ios")
     return cmd
+
+
+def cmd_benchmark(args):
+    args.component = "engine"
+    args.suite = "benchmark"
+    args.list = False
+    return cmd_test(args)
 
 
 def cmd_test(args):
@@ -88,8 +95,13 @@ def cmd_test(args):
 
     for c in targets:
         cmd = _component_args(c, args)
-        print_color(BLUE, f"$ {' '.join(cmd)}")
         rc = subprocess.run(cmd, cwd=PROJECT_ROOT, env=env).returncode
         if rc != 0:
+            if c == "engine" and args.ios:
+                print_color(YELLOW,
+                    "If the app could not launch on your iPhone, trust the developer first:\n"
+                    "  Go to Settings → General → VPN & Device Management.\n"
+                    "  Under Enterprise App, tap the developer name.\n"
+                    "  Tap Trust “[developer name]”.")
             return rc
     return 0

@@ -157,6 +157,23 @@ def test_cli_registers_low_memory_transpile_flag() -> None:
     assert args.low_memory_load is True
 
 
+def test_benchmark_aliases_engine_benchmark_suite(monkeypatch) -> None:
+    """`cactus benchmark` is `cactus test --component engine --suite benchmark`."""
+    from cactus.cli import test as test_cli
+
+    parser = cli.create_parser()
+    args = parser.parse_args(["benchmark", "--backend", "cpu", "--bits", "2"])
+    assert args.command == "benchmark"
+    assert args.backend == "cpu"
+    assert args.bits == 2
+
+    calls = []
+    monkeypatch.setattr(test_cli, "cmd_test", lambda a: calls.append(a) or 0)
+    assert test_cli.cmd_benchmark(args) == 0
+    assert calls[0].component == "engine"
+    assert calls[0].suite == "benchmark"
+
+
 def test_run_accepts_local_bundle_path() -> None:
     """`cactus run` accepts a HF id (org/model) OR a local path. Bare names
     like 'whisper-base' (no slash) are rejected."""
