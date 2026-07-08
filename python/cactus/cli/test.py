@@ -99,7 +99,11 @@ def cmd_test(args):
         if rc != 0:
             if c == "engine" and args.ios:
                 print_color(YELLOW,
-                    "If the app could not launch on your iPhone, trust the developer first:\n"
+                    "If the app could not build or launch on your device:\n"
+                    "Turn on Developer Mode:\n"
+                    "  Go to Settings → Privacy & Security → Developer Mode.\n"
+                    "  Toggle it on, restart, then confirm with your passcode.\n"
+                    "Trust the developer:\n"
                     "  Go to Settings → General → VPN & Device Management.\n"
                     "  Under Enterprise App, tap the developer name.\n"
                     "  Tap Trust “[developer name]”.")

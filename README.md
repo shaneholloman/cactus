@@ -133,6 +133,7 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 |--------|-----|-----|------------|---------------|
 | Mac M5 Max | 2964tps / 154tps | 0.09s / 168tps | 0.15s | 1348MB |
 | Mac M4 Pro | 1947tps / 97tps | 0.25s / 108tps | 0.28s | 1225MB |
+| iPad M5 | 1336tps / 71tps | 0.25s / 80tps | 0.27s | 703MB |
 | iPhone 17 Pro | 729tps / 37tps | 0.5s / 39tps | 0.51s | 644MB |
 | iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s | 635MB |
 
@@ -159,7 +160,7 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 
 ## Supported Models
 
-- Any HuggigFace model can be converted using `cactus convert [HF-Name]`, though experimental.
+- Any HuggigFace model can be converted using `cactus convert [HF-Name]`, though experimental. 
 - Liquid, Gemma. whisper. parakeet and Qwen model families are especially tested. 
 - Some models have been pre-uploaded [here](https://huggingface.co/Cactus-Compute), just run `cactus download [HF-Name]`.
 - `cactus run [HF-Name]` albeit first downloads or convert the model if not found. 
@@ -278,10 +279,11 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 │  cactus test                         run the test suite                        │
 │    --component <name>                kernels | graph | engine | all            │
 │                                      (default: all)                            │
-│    --model <hf-id>                   default: LiquidAI/LFM2-VL-450M            │
-│    --transcription-model <hf-id>     default: openai/whisper-base              │
+│    --model <hf-id>                   default: google/gemma-4-E2B-it            │
+│    --transcription-model <hf-id>     default: nvidia/parakeet-tdt-0.6b-v3      │
 │    --bits 1|2|3|4                    CQ quantization (default: 4)              │
 │    --weights general|apple           weights bundle variant (default: general) │
+│    --backend auto|cpu|metal          inference backend (default: auto)         │
 │    --token <token>                   HuggingFace token (gated models)          │
 │    --reconvert                       force local rebuild of test models        │
 │    --suite <name>                    run a single test suite by name           │
@@ -291,6 +293,15 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 │    --ios                             run on connected iPhone                   │
 │    --android                         run on connected Android                  │
 │    --enable-telemetry                send cloud telemetry (off by default)     │
+│                                                                                │
+│  cactus benchmark                    run the engine benchmark suite            │
+│    --model <hf-id>                   default: google/gemma-4-E2B-it            │
+│    --transcription-model <hf-id>     default: nvidia/parakeet-tdt-0.6b-v3      │
+│    --bits 1|2|3|4                    CQ quantization (default: 4)              │
+│    --weights general|apple           weights bundle variant (default: general) │
+│    --backend auto|cpu|metal          inference backend (default: auto)         │
+│    --ios                             run on connected iPhone                   │
+│    --android                         run on connected Android                  │
 │                                                                                │
 │  cactus clean                        delete build artifacts, weights, venv     │
 │  cactus --help                       show this help                            │
