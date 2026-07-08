@@ -122,22 +122,17 @@ graph.hard_reset();
 
 ## Benchmarks
 
-- LLM: Gemma-4-E2B-CQ4, 1k-prefill tps / 100-decode tps
-- VLM: Gemma-4-E2B-CQ4  256px input, latency / decode tps
-- Transcribe: Parakeet-TDT-0.6B-CQ4, 20s audio, latency / decode tps
-- Missing latency == no NPU support for device
+- LLM: Gemma-4-E2B-CQ4 (1k-context prefill / decode for 100 tokens)
+- VLM: Gemma-4-E2B-CQ4 (256px image encode time / decode)
+- Transcribe: Parakeet-TDT-0.6B-CQ4 (20s audio encode time / decode)
+- 1k-Context RAM: peak MB during the LLM benchmark
+
+Reproduce command: `cactus test --component engine --suite benchmark`
 
 | Device | LLM | VLM | Transcribe | 1k-Context RAM |
-|--------|----------|------------|---------------|-----|
-| Mac M4 Pro | 2619tps / 139tps | 0.4s / 160tps | 0.1s / 11Mtps | 1327 MB |
-| Mac M3 Pro | 390 / 26 | 2.76s / 28.06 | 0.32s / 2.29M | 1376 MB |
-| iPhone 17 Pro | - | - | - | - |
-| iPhone 13 Mini | - | - | - | - |
-| Galaxy S26 | 248 / 21 | - / 16 | - / 5.7M | - |
-| Galaxy A17 5G | - | - | - | - |
-| Pixel 10 Pro | - | - | - | - |
-| Pixel 6a | - | - | - | - |
-| Raspberry Pi 5 | - | - | - | - |
+|--------|-----|-----|------------|---------------|
+| Mac M4 Pro | 1947tps / 97tps | 0.25s / 108tps | 0.28s / 11.1Mtps | 1225MB |
+| iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s / 10.9Mtps | 635MB |
 
 
 ## Supported Models
