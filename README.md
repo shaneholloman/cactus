@@ -139,8 +139,10 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 | iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s | 635MB |
 
 N/B: With 1k-context prefill and decode for 100 runs on M5 Max
-- `LFM2.5-VL-1.6B` = 289toks/sec. 
-- `Qwen3-1.7B` = 155toks/sec. 
+- `LFM2.5-VL-1.6B` = 289toks/sec
+- `Qwen3-1.7B` = 155toks/sec 
+- `LFM2.5-VL-450m` = 472toks/sec, image encodes in 43ms
+- `LFM22.5-VL-230m` = 555toks/sec
 
 ## Output Quality 
 
