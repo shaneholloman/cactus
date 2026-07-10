@@ -126,7 +126,7 @@ graph.hard_reset();
 - VLM: Gemma-4-E2B-CQ4 (256px image encode time / decode)
 - Transcribe: Parakeet-TDT-0.6B-CQ4 (20s audio end-to-end transcribe time)
 - 1k-Context RAM: peak MB during the LLM benchmark
-- No speculative decode or MTP, pure decode. 
+- No speculative decode or MTP, pure decode 
 
 Command: `cactus benchmark` [optional `--ios` or `--android`]
 
@@ -137,6 +137,10 @@ Command: `cactus benchmark` [optional `--ios` or `--android`]
 | iPad/Vision Pro M5 | 1336tps / 71tps | 0.25s / 80tps | 0.27s | 703MB |
 | iPhone 17 Pro | 729tps / 37tps | 0.5s / 39tps | 0.51s | 644MB |
 | iPhone 15 Pro | 511tps / 25tps | 1.16s / 27tps | 1.40s | 635MB |
+
+N/B: With 1k-context prefill and decode for 100 runs on M5 Max
+- `LFM2.5-VL-1.6B` = 289toks/sec. 
+- `Qwen3-1.7B` = 155toks/sec. 
 
 ## Output Quality 
 
