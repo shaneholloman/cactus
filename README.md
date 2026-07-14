@@ -173,6 +173,14 @@ N/B: With 1k-context prefill and decode for 100 runs on M5 Max
 - Some models have been pre-uploaded [here](https://huggingface.co/Cactus-Compute), just run `cactus download [HF-Name]`.
 - `cactus run [HF-Name]` albeit first downloads or convert the model if not found. 
 
+## Needle
+
+[Needle](https://github.com/cactus-compute/needle) is a 26m parameter model for on-device tool calling:
+
+```bash
+cactus run Cactus-Compute/needle [--tools my_tools.json]  # OpenAI function-calling format; demo toolset by default
+```
+
 ## Learn More
 
 | Reference | Language | Description |
@@ -221,6 +229,7 @@ N/B: With 1k-context prefill and decode for 100 runs on M5 Max
 │    --audio <path>                    audio file for audio chat                 │
 │    --system <prompt>                 system prompt                             │
 │    --prompt <text>                   send prompt immediately                   │
+│    --tools <json|file>               tool definitions for tool calling         │
 │    --thinking                        enable thinking/reasoning mode            │
 │    --token <token>                   HuggingFace token (gated models)          │
 │    --reconvert                       force local rebuild from source           │
